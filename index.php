@@ -17,7 +17,7 @@
     <header>
         <hgroup>
             <h1><a href="http://oroboto.com/">Oroboto</a></h1>
-            <h2>CSS Unity</h2>
+            <h2><a href="http://oroboto.com/labs/css-unity/">CSS Unity</a></h2>
         </hgroup>
     </header>
     <div id="content">
