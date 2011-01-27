@@ -29,7 +29,17 @@ class CSSUnity {
     private $stylesheets;
     private $text = '';
 
-    const pattern = '/.+url\([\'"]*(.+)\.(gif|jpg|png)[\'"]*\).*/i';
+    // $matches[0] = css rule
+    // $matches[1] = [selector]
+    // $matches[2] = [declaration]
+    // $matches[3] = [property]
+    // $matches[4] = [value]
+    // $matches[5] = [filepath]
+    // $matches[6] = [filenoext]
+    // $matches[7] = [extension]
+    private $matches;
+
+    const pattern = '/(?P<selector>.+)\s*{\s*(?P<declaration>(?P<property>.+):(?P<value>.*url\([\'"]*(?P<filepath>(?P<filenoext>.+)?\.(?P<extension>gif|jpg|png))[\'"]*\)[^;]*?);*)\s*}/i';
 
     function __construct($input) {
         header('Content-type: text/css');
@@ -46,9 +56,9 @@ class CSSUnity {
         }
     }
 
-    public function unify() {
-        // convert external resources to encoded data URIs
-        $this->encode_resources();
+    public function unify($type=false, $separate=false) {
+        // convert external resources to encoded text
+        $this->encode_resources($type, $separate);
 
         // write text to response
         echo $this->text;
@@ -69,37 +79,56 @@ class CSSUnity {
         return $this->text;
     }
 
-    public function encode_resources() {
+    private function _capture_groups() {
         if (empty($this->text)) {
             // read files in array and append to single string
             $this->combine_stylesheets();
         }
 
-        // $matches[0] = full match
-        // $matches[1] = full path without extension
-        // $matches[2] = file extensions
-        preg_match_all(self::pattern, $this->text, $matches);
-
-        // map arrays for array-based string replacement
-        $filenames = array_map(array($this, '_get_filename'), $matches[1], $matches[2]);
-        $data_uris = array_map(array($this, '_get_data_uri'), $matches[2], $filenames);
-        $this->text = str_replace($filenames, $data_uris, $this->text);
+        preg_match_all(self::pattern, $this->text, $this->matches);
         return $this->text;
     }
 
-    private function _get_filename($filenoext, $fileext) {
-        return "$filenoext.$fileext";
+    public function encode_resources($type=false, $separate=false) {
+        if (empty($this->matches)) {
+            // capture groups into array
+            $this->_capture_groups();
+        }
+
+        // $matches[0] = css rule
+        // $matches[1] = [selector]
+        // $matches[2] = [declaration]
+        // $matches[3] = [property]
+        // $matches[4] = [value]
+        // $matches[5] = [filepath]
+        // $matches[6] = [filenoext]
+        // $matches[7] = [extension]
+
+        // map arrays for array-based string replacement
+        $data_uri_declarations = array_map(array($this, '_get_data_uri_declaration'), $this->matches['filepath'], $this->matches['extension'], $this->matches['value'], $this->matches['property']);
+        $this->text = str_replace($this->matches['declaration'], $data_uri_declarations, $this->text);
+        return $this->text;
     }
 
-    private function _get_base64encoded_resource($filename) {
-        if (!file_exists($filename)) { return; }
-        return base64_encode(file_get_contents($filename));
+    private function _get_base64encoded_resource($filepath) {
+        if (!file_exists($filepath)) { return; }
+        return base64_encode(file_get_contents($filepath));
     }
 
-    private function _get_data_uri($fileext, $filename) {
-        $base64 = $this->_get_base64encoded_resource($filename);
-        if (empty($base64)) { return $filename; }
-        return "data:image/$fileext;base64,$base64";
+    private function _get_data_uri($filepath, $extension) {
+        $base64 = $this->_get_base64encoded_resource($filepath);
+        if (empty($base64)) { return $filepath; }
+        return "data:image/$extension;base64,$base64";
+    }
+
+    private function _get_data_uri_value($filepath, $extension, $oldvalue) {
+        $data_uri = $this->_get_data_uri($filepath, $extension);
+        return str_replace($filepath, $data_uri, $oldvalue);
+    }
+
+    private function _get_data_uri_declaration($filepath, $extension, $oldvalue, $property) {
+        $data_uri_value = $this->_get_data_uri_value($filepath, $extension, $oldvalue);
+        return "$property:$data_uri_value;";
     }
 }
 ?>

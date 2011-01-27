@@ -24,7 +24,7 @@
         <article id="demo">
             <h1>Demo</h1>
             <?php
-            $images = glob(dirname( __FILE__ ) . '/images/tango-icon-theme-0.8.90/32x32/actions/*.png');
+            $images = glob(dirname(__FILE__) . '/images/tango-icon-theme-0.8.90/32x32/actions/*.png');
             if (count($images) > 0) { echo '<ul>'; }
             foreach ($images as $path) {
                 $filename = basename($path);
