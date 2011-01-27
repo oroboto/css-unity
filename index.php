@@ -11,7 +11,7 @@
     <meta name="keywords" content="css unity, css, unity, stylesheet, images, data URI, MHTML" />
     <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <!--<link type="text/css" rel="stylesheet" href="styles/tango-demo.css" />-->
-    <link type="text/css" rel="stylesheet" href="styles/css.php?s=html5reset-1.6.1.css,tango-demo.css" />
+    <link type="text/css" rel="stylesheet" href="styles/css.php?s=reset.css,tango-demo.css" />
 </head>
 <body>
     <header>
