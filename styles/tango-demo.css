@@ -1,55 +1,59 @@
 /* tango-demo.css */
-li {
-    background-position:50% 10px;
-    background-repeat:no-repeat;
-    float:left;
-    font-size:12px;
-    height:88px;
-    list-style:none;
-    margin:0 5px 5px 0;
-    padding:52px 5px 10px;
-    text-align:center;
-    width:140px;
-}
+/* 1 basic match */
 li.address-book-new {
     background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/address-book-new.png);
 }
-li.not-exist {
-    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/not-exist.png);
-}
+/* 2 single line */
+li.not-exist { background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/not-exist.png); }
+/* 3 single quote */
 li.appointment-new {
-    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/appointment-new.png);
+    background-image:url('../images/tango-icon-theme-0.8.90/32x32/actions/appointment-new.png');
 }
+/* 4 double quote */
 li.bookmark-new {
-    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/bookmark-new.png);
+    background-image:url("../images/tango-icon-theme-0.8.90/32x32/actions/bookmark-new.png");
 }
-li.contact-new {
-    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/contact-new.png);
-}
+/* 5 single line minified */
+li.contact-new{background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/contact-new.png);}
+/* 6 shorthand before */
 li.document-new {
-    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/document-new.png);
+    background:transparent url(../images/tango-icon-theme-0.8.90/32x32/actions/document-new.png);
 }
+/* 7 shorthand after */
 li.document-open {
-    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/document-open.png);
+    background:transparent url(../images/tango-icon-theme-0.8.90/32x32/actions/document-open.png) no-repeat;
 }
+/* 8 shorthand before and after */
 li.document-print-preview {
-    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/document-print-preview.png);
+    background:transparent url(../images/tango-icon-theme-0.8.90/32x32/actions/document-print-preview.png) no-repeat;
 }
+/* 9 no ending semicolon (ending semicolon will be added automatically) */
 li.document-print {
-    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/document-print.png);
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/document-print.png)
 }
+/* 10 property before */
 li.document-properties {
+    display:block;
     background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/document-properties.png);
 }
+/* 11 property after */
 li.document-save-as {
     background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/document-save-as.png);
+    display:block;
 }
+/* 12 property before and after */
 li.document-save {
+    display:block;
     background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/document-save.png);
+    position:relative;
 }
-li.edit-clear {
-    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-clear.png);
+/* 13 property before and after minified */
+li.edit-clear{display:block;background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-clear.png);position:relative;}
+/* 14 commented ruleset
+li.commented {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/commented.png);
 }
+*/
 li.edit-copy {
     background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-copy.png);
 }
@@ -220,4 +224,16 @@ li.view-refresh {
 }
 li.window-new {
     background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/window-new.png);
+}
+li {
+    background-position:50% 10px !important;
+    background-repeat:no-repeat !important;
+    float:left;
+    font-size:12px;
+    height:88px;
+    list-style:none;
+    margin:0 5px 5px 0;
+    padding:52px 5px 10px;
+    text-align:center;
+    width:140px;
 }

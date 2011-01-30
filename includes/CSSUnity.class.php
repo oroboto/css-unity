@@ -29,17 +29,20 @@ class CSSUnity {
     private $stylesheets;
     private $text = '';
 
-    // $matches[0] = css rule
-    // $matches[1] = [selector]
-    // $matches[2] = [declaration]
-    // $matches[3] = [property]
-    // $matches[4] = [value]
-    // $matches[5] = [filepath]
-    // $matches[6] = [filenoext]
-    // $matches[7] = [extension]
+    // $matches[1] = [comment]
+    // $matches[2] = [ruleset]
+    // $matches[3] = [selector]
+    // $matches[4] = [declaration]
+    // $matches[5] = [property]
+    // $matches[6] = [value]
+    // $matches[7] = [filepath]
+    // $matches[8] = [filenoext]
+    // $matches[9] = [extension]
     private $matches;
 
-    const pattern = '/(?P<selector>.+)\s*{\s*(?P<declaration>(?P<property>.+):(?P<value>.*url\([\'"]*(?P<filepath>(?P<filenoext>.+)?\.(?P<extension>gif|jpg|png))[\'"]*\)[^;]*?);*)\s*}/i';
+    const CSS_PATTERN = '/(?P<comment>\/\*.*?\*\/)*\s*(?P<ruleset>(?P<selector>[-\w.]+?)\s*{[^}]*?(?P<declaration>(?P<property>[-\w*]+)\s*:(?P<value>[^;]*url\([\'"]?(?P<filepath>(?P<filenoext>.+)?\.(?P<extension>gif|jpg|png))[\'"]?\)[^;]*?);?)[^}]*})/i';
+    const CSS_COMMENT_PATTERN = '/(?P<comment>\/\*(?:\s|.)*?\*\/)/';
+    const CSS_NO_SEMICOLON_PATTERN = '/([^;\s])(})/';
 
     function __construct($input) {
         header('Content-type: text/css');
@@ -75,6 +78,9 @@ class CSSUnity {
             if (file_exists($stylesheet)) {
                 $this->text .= file_get_contents($stylesheet);
             }
+
+            // add ending semicolons as needed
+            $this->text = preg_replace(self::CSS_NO_SEMICOLON_PATTERN, '$1;$2', $this->text);
         }
         return $this->text;
     }
@@ -85,8 +91,11 @@ class CSSUnity {
             $this->combine_stylesheets();
         }
 
-        preg_match_all(self::pattern, $this->text, $this->matches);
-        return $this->text;
+        // strip comments
+        $text_without_comments = preg_replace(self::CSS_COMMENT_PATTERN, '', $this->text);
+
+        // fill match array
+        preg_match_all(self::CSS_PATTERN, $text_without_comments, $this->matches);
     }
 
     public function encode_resources($type=false, $separate=false) {
@@ -95,17 +104,20 @@ class CSSUnity {
             $this->_capture_groups();
         }
 
-        // $matches[0] = css rule
-        // $matches[1] = [selector]
-        // $matches[2] = [declaration]
-        // $matches[3] = [property]
-        // $matches[4] = [value]
-        // $matches[5] = [filepath]
-        // $matches[6] = [filenoext]
-        // $matches[7] = [extension]
+        // $matches[1] = [comment]
+        // $matches[2] = [ruleset]
+        // $matches[3] = [selector]
+        // $matches[4] = [declaration]
+        // $matches[5] = [property]
+        // $matches[6] = [value]
+        // $matches[7] = [filepath]
+        // $matches[8] = [filenoext]
+        // $matches[9] = [extension]
 
         // map arrays for array-based string replacement
-        $data_uri_declarations = array_map(array($this, '_get_data_uri_declaration'), $this->matches['filepath'], $this->matches['extension'], $this->matches['value'], $this->matches['property']);
+        $data_uri_declarations = array_map(array($this, '_get_data_uri_declaration'),
+            $this->matches['filepath'], $this->matches['extension'],
+            $this->matches['value'], $this->matches['property']);
         $this->text = str_replace($this->matches['declaration'], $data_uri_declarations, $this->text);
         return $this->text;
     }
