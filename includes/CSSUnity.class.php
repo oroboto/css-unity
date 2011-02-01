@@ -114,11 +114,18 @@ class CSSUnity {
         // $matches[8] = [filenoext]
         // $matches[9] = [extension]
 
-        // map arrays for array-based string replacement
-        $data_uri_declarations = array_map(array($this, '_get_data_uri_declaration'),
-            $this->matches['filepath'], $this->matches['extension'],
-            $this->matches['value'], $this->matches['property']);
-        $this->text = str_replace($this->matches['declaration'], $data_uri_declarations, $this->text);
+        if (!$type || $type == 'data_uri') {
+            // map arrays for data uri declarations
+            $data_uri_declarations = array_map(array($this, '_get_data_uri_declaration'),
+                $this->matches['filepath'], $this->matches['extension'],
+                $this->matches['value'], $this->matches['property']);
+
+            $this->text = $separate ?
+                implode("\n", array_map(array($this, '_get_separated_data_uri_ruleset'),
+                $this->matches['selector'], $data_uri_declarations)) :
+                str_replace($this->matches['declaration'], $data_uri_declarations, $this->text);
+        }
+
         return $this->text;
     }
 
@@ -141,6 +148,10 @@ class CSSUnity {
     private function _get_data_uri_declaration($filepath, $extension, $oldvalue, $property) {
         $data_uri_value = $this->_get_data_uri_value($filepath, $extension, $oldvalue);
         return "$property:$data_uri_value;";
+    }
+
+    private function _get_separated_data_uri_ruleset($selector, $declaration) {
+        return "$selector { $declaration }";
     }
 }
 ?>
