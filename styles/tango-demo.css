@@ -249,7 +249,7 @@ li.window-new {
     width:140px;
 }
 li.quick-end-jerk {
-    font:18px/27px'QuickEndJerkRegular',Arial,sans-serif;
+    font:18px/27px 'QuickEndJerkRegular',Arial,sans-serif;
 }
 .clearfix:after {
     content:".";
@@ -257,6 +257,9 @@ li.quick-end-jerk {
     height:0;
     clear:both;
     visibility:hidden;
+}
+.lte7 .clearfix {
+    height:1%;
 }
 } /* @media screen */
 
