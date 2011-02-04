@@ -122,7 +122,7 @@ class CSSUnity {
 
             $this->text = $separate ?
                 implode("\n", array_map(array($this, '_get_separated_data_uri_ruleset'),
-                $this->matches['selector'], $data_uri_declarations)) :
+                    $this->matches['selector'], $data_uri_declarations)) :
                 str_replace($this->matches['declaration'], $data_uri_declarations, $this->text);
         }
 
