@@ -84,7 +84,7 @@ class CSSUnity {
         }
 
         if (!empty($this->text)) {
-            $this->text = $this->_tidy();
+            $this->text = $this->tidy();
         }
 
         return $this->text;
