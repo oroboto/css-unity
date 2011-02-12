@@ -2,7 +2,7 @@
 /*
 CSS Unity
 
-Copyright (C) 2011 Ryan Sullivan
+Copyright (C) 2011 Oroboto
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
@@ -82,7 +82,27 @@ class CSSUnity {
             // add ending semicolons as needed
             $this->text = preg_replace(self::CSS_NO_SEMICOLON_PATTERN, '$1;$2', $this->text);
         }
+
+        if (!empty($this->text)) {
+            $this->text = $this->_tidy();
+        }
+
         return $this->text;
+    }
+
+    public function tidy() {
+        if (empty($this->text)) {
+            // read files in array and append to single string
+            $this->combine_stylesheets();
+        }
+
+        // tidy
+        include('../lib/CSSTidy/class.csstidy.php');
+        $css = new csstidy();
+        $css->set_cfg('preserve_css',true);
+        $css->set_cfg('remove_last_;',false);
+        $css->parse($this->text);
+        return $css->print->plain();
     }
 
     private function _capture_groups() {
