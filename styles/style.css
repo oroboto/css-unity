@@ -1,0 +1,308 @@
+/* style.css */
+@charset "utf-8";
+
+@font-face {
+    font-family: 'MountainsofChristmasRegular';
+    src: url('../fonts/mountains-of-christmas-fontfacekit/MountainsofChristmas-webfont.eot?') format('eot'),
+         url('../fonts/mountains-of-christmas-fontfacekit/MountainsofChristmas-webfont.woff') format('woff'),
+         url('../fonts/mountains-of-christmas-fontfacekit/MountainsofChristmas-webfont.ttf') format('truetype'),
+         url('../fonts/mountains-of-christmas-fontfacekit/MountainsofChristmas-webfont.svg#webfontVHBHfIgM') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'QuickEndJerkRegular';
+    src: url('../fonts/Quick-End-Jerk-fontfacekit/quick_end_jerk-webfont.eot?') format('eot'),
+         url('../fonts/Quick-End-Jerk-fontfacekit/quick_end_jerk-webfont.woff') format('woff'),
+         url('../fonts/Quick-End-Jerk-fontfacekit/quick_end_jerk-webfont.ttf') format('truetype'),
+         url('../fonts/Quick-End-Jerk-fontfacekit/quick_end_jerk-webfont.svg#webfontV2wESYqZ') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@media screen {
+article h2 {
+    font:63px/70px 'MountainsofChristmasRegular',Arial,sans-serif;
+}
+/* 1 basic match */
+li.address-book-new {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/address-book-new.png);
+}
+/* 2 single line */
+li.not-exist { background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/not-exist.png); }
+/* 3 single quote */
+li.appointment-new {
+    background-image:url('../images/tango-icon-theme-0.8.90/32x32/actions/appointment-new.png');
+}
+/* 4 double quote */
+li.bookmark-new {
+    background-image:url("../images/tango-icon-theme-0.8.90/32x32/actions/bookmark-new.png");
+}
+/* 5 single line minified */
+li.contact-new{background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/contact-new.png);}
+/* 6 shorthand before */
+li.document-new {
+    background:transparent url(../images/tango-icon-theme-0.8.90/32x32/actions/document-new.png);
+}
+/* 7 shorthand after */
+li.document-open {
+    background:transparent url(../images/tango-icon-theme-0.8.90/32x32/actions/document-open.png) no-repeat;
+}
+/* 8 shorthand before and after */
+li.document-print-preview {
+    background:transparent url(../images/tango-icon-theme-0.8.90/32x32/actions/document-print-preview.png) no-repeat;
+}
+/* 9 no ending semicolon (ending semicolon will be added automatically) */
+li.document-print {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/document-print.png)
+}
+/* 10 property before */
+li.document-properties {
+    display:block;
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/document-properties.png);
+}
+/* 11 property after */
+li.document-save-as {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/document-save-as.png);
+    display:block;
+}
+/* 12 property before and after */
+li.document-save {
+    display:block;
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/document-save.png);
+    position:relative;
+}
+/* 13 property before and after minified */
+li.edit-clear{display:block;background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-clear.png);position:relative;}
+/* 14 commented ruleset
+li.commented {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/commented.png);
+}
+*/
+/* 15 multiple selector ruleset */
+li.another-selector,
+li.edit-copy {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-copy.png);
+}
+li.edit-cut {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-cut.png);
+}
+li.edit-delete {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-delete.png);
+}
+li.edit-find-replace {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-find-replace.png);
+}
+li.edit-find {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-find.png);
+}
+li.edit-paste {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-paste.png);
+}
+li.edit-redo {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-redo.png);
+}
+li.edit-select-all {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-select-all.png);
+}
+li.edit-undo {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-undo.png);
+}
+li.folder-new {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/folder-new.png);
+}
+li.format-indent-less {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/format-indent-less.png);
+}
+li.format-indent-more {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/format-indent-more.png);
+}
+li.format-justify-center {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/format-justify-center.png);
+}
+li.format-justify-fill {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/format-justify-fill.png);
+}
+li.format-justify-left {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/format-justify-left.png);
+}
+li.format-justify-right {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/format-justify-right.png);
+}
+li.format-text-bold {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/format-text-bold.png);
+}
+li.format-text-italic {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/format-text-italic.png);
+}
+li.format-text-strikethrough {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/format-text-strikethrough.png);
+}
+li.format-text-underline {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/format-text-underline.png);
+}
+li.go-bottom {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/go-bottom.png);
+}
+li.go-down {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/go-down.png);
+}
+li.go-first {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/go-first.png);
+}
+li.go-home {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/go-home.png);
+}
+li.go-jump {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/go-jump.png);
+}
+li.go-last {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/go-last.png);
+}
+li.go-next {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/go-next.png);
+}
+li.go-previous {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/go-previous.png);
+}
+li.go-top {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/go-top.png);
+}
+li.go-up {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/go-up.png);
+}
+li.list-add {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/list-add.png);
+}
+li.list-remove {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/list-remove.png);
+}
+li.mail-forward {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/mail-forward.png);
+}
+li.mail-mark-junk {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/mail-mark-junk.png);
+}
+li.mail-mark-not-junk {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/mail-mark-not-junk.png);
+}
+li.mail-message-new {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/mail-message-new.png);
+}
+li.mail-reply-all {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/mail-reply-all.png);
+}
+li.mail-reply-sender {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/mail-reply-sender.png);
+}
+li.mail-send-receive {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/mail-send-receive.png);
+}
+li.media-eject {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/media-eject.png);
+}
+li.media-playback-pause {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/media-playback-pause.png);
+}
+li.media-playback-start {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/media-playback-start.png);
+}
+li.media-playback-stop {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/media-playback-stop.png);
+}
+li.media-record {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/media-record.png);
+}
+li.media-seek-backward {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/media-seek-backward.png);
+}
+li.media-seek-forward {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/media-seek-forward.png);
+}
+li.media-skip-backward {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/media-skip-backward.png);
+}
+li.media-skip-forward {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/media-skip-forward.png);
+}
+li.process-stop {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/process-stop.png);
+}
+li.system-lock-screen {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/system-lock-screen.png);
+}
+li.system-log-out {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/system-log-out.png);
+}
+li.system-search {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/system-search.png);
+}
+li.system-shutdown {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/system-shutdown.png);
+}
+li.tab-new {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/tab-new.png);
+}
+li.view-fullscreen {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/view-fullscreen.png);
+}
+li.view-refresh {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/view-refresh.png);
+}
+li.window-new {
+    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/window-new.png);
+}
+.images li {
+    background-position:50% 10px !important;
+    background-repeat:no-repeat !important;
+    float:left;
+    font-size:12px;
+    height:88px;
+    list-style:none;
+    margin:0 5px 5px 0;
+    padding:52px 5px 10px;
+    text-align:center;
+    width:140px;
+}
+li.mountains-of-christmas {
+    font:27px/36px 'MountainsofChristmasRegular',Arial,sans-serif;
+}
+li.quick-end-jerk {
+    font:18px/27px 'QuickEndJerkRegular',Arial,sans-serif;
+}
+.clearfix:after {
+    content:".";
+    display:block;
+    height:0;
+    clear:both;
+    visibility:hidden;
+}
+.lte7 .clearfix {
+    height:1%;
+}
+} /* @media screen */
+
+@media print {
+body {
+    font-family:Arial,Helvetica,sans-serif;
+}
+} /* @media print */
+
+/* mobile (iPhone/Android; ProtoFluid compatible) */
+@media only screen and (max-width:480px),
+only screen and (max-device-width:480px),
+only screen and (max-width:854px) and (orientation:landscape),
+only screen and (max-device-width:854px) and (orientation:landscape) {
+html {
+    background:none;
+}
+body {
+    background:#ddd;
+    color:#222;
+}
+} /* mobile */
+
+/* iPhone 4 */
+@media only screen and (-webkit-min-device-pixel-ratio:2) {
+} /* iPhone 4 */

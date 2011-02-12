@@ -37,6 +37,7 @@
             <h2>Fonts</h2>
             <ul class="fonts">
                 <li class="quick-end-jerk">Quick End Jerk</li>
+                <li class="mountains-of-christmas">Mountains of Christmas</li>
             </ul>
         </article>
     </div>
