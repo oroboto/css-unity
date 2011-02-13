@@ -2,7 +2,7 @@
 /*
 CSS Unity
 
-Copyright (C) 2011 Oroboto
+Copyright (C) 2011 Oroboto. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
@@ -29,19 +29,8 @@ class CSSUnity {
     private $stylesheets;
     private $text = '';
 
-    // $matches[1] = [comment]
-    // $matches[2] = [ruleset]
-    // $matches[3] = [selector]
-    // $matches[4] = [declaration]
-    // $matches[5] = [property]
-    // $matches[6] = [value]
-    // $matches[7] = [filepath]
-    // $matches[8] = [filenoext]
-    // $matches[9] = [extension]
-    private $matches;
-
-    const CSS_PATTERN = '/(?P<comment>\/\*.*?\*\/)*\s*(?P<ruleset>(?P<selector>[-\w.]+?)\s*{[^}]*?(?P<declaration>(?P<property>[-\w*]+)\s*:(?P<value>[^;]*url\([\'"]?(?P<filepath>(?P<filenoext>.+)?\.(?P<extension>gif|jpg|png))[\'"]?\)[^;]*?);?)[^}]*})/i';
     const CSS_COMMENT_PATTERN = '/(?P<comment>\/\*(?:\s|.)*?\*\/)/';
+    const CSS_URL_PATTERN = '/url\([\'"]?(?P<filepath>(?P<filenoext>.+)?\.(?P<extension>[^\'")?#]+).*?)[\'"]?\)/i';
     const CSS_NO_SEMICOLON_PATTERN = '/([^;\s])(})/';
 
     function __construct($input) {
@@ -61,7 +50,7 @@ class CSSUnity {
 
     public function unify($type=false, $separate=false) {
         // convert external resources to encoded text
-        $this->encode_resources($type, $separate);
+        $this->parse($type, $separate);
 
         // write text to response
         echo $this->text;
@@ -76,11 +65,9 @@ class CSSUnity {
 
             // concatenate stylesheet contents
             if (file_exists($stylesheet)) {
-                $this->text .= file_get_contents($stylesheet);
+                $this->text .= "/* FILE: $stylesheet */";
+                $this->text .= trim(file_get_contents($stylesheet));
             }
-
-            // add ending semicolons as needed
-            $this->text = preg_replace(self::CSS_NO_SEMICOLON_PATTERN, '$1;$2', $this->text);
         }
 
         if (!empty($this->text)) {
@@ -96,56 +83,86 @@ class CSSUnity {
             $this->combine_stylesheets();
         }
 
-        // tidy
+        // CSSTidy
         include('../lib/CSSTidy/class.csstidy.php');
         $css = new csstidy();
-        $css->set_cfg('preserve_css',true);
-        $css->set_cfg('remove_last_;',false);
+        $css->set_cfg('preserve_css', true);
+        $css->set_cfg('remove_last_;', false);
+        $css->set_cfg('compress_font-weight', false);
         $css->parse($this->text);
         return $css->print->plain();
     }
 
-    private function _capture_groups() {
+    /**
+     * Parses CSS.
+     * @param string $type converts external resources to the specified type
+     *     (datauri|mhtml|none); false (default) to generate all in one
+     * @param string $separate outputs only the specified type and relevant text
+     * @return string
+     */
+    public function parse($type=false, $separate=false) {
         if (empty($this->text)) {
             // read files in array and append to single string
             $this->combine_stylesheets();
         }
 
         // strip comments
-        $text_without_comments = preg_replace(self::CSS_COMMENT_PATTERN, '', $this->text);
+        $text = preg_replace(self::CSS_COMMENT_PATTERN, '', $this->text);
 
-        // fill match array
-        preg_match_all(self::CSS_PATTERN, $text_without_comments, $this->matches);
-    }
+        // split multiple @font-face urls into separate lines
+        $text = preg_replace('/(,)(url)/i', "$1\n$2", $text);
 
-    public function encode_resources($type=false, $separate=false) {
-        if (empty($this->matches)) {
-            // capture groups into array
-            $this->_capture_groups();
+        $parsed_text = '';
+
+        // variables to provide loop lookbehind
+        $at_block = '';
+        $font_face_family = '';
+        $selector = '';
+
+        // loop through lines
+        foreach (preg_split("/(\r?\n)/", $text) as $line) {
+            if (empty($line)) { continue; }
+            $starts_with_at = strpos($line, '@') === 0;
+            $inside_font_face = strpos($at_block, '@font-face') === 0;
+            $starts_with_font_family = strpos($line, 'font-family') === 0;
+            $ends_with_open_curly_brace = !empty($line) && substr_compare($line, '{', -1, 1) === 0;
+
+            // save at/selector blocks for later use; otherwise, parse line normally
+            if ($ends_with_open_curly_brace) {
+                // start of block
+                $at_block = $starts_with_at ? $line : $at_block;
+                $selector = !$starts_with_at ? $line : $selector;
+            } else if ($line === '}') {
+                // end of block
+                if (!empty($selector)) {
+                    $selector = '';
+                } else {
+                    $at_block = '';
+                    $font_face_family = '';
+                }
+            } else {
+                if ($inside_font_face) {
+                    $font_face_family = $starts_with_font_family ? $line : $font_face_family;
+                    // TODO: convert fonts to data uris
+                } else {
+                    // fill match array
+                    // $matches[1] = [filepath]
+                    // $matches[2] = [filenoext]
+                    // $matches[3] = [extension]
+                    preg_match(self::CSS_URL_PATTERN, $line, $matches);
+                    if (!empty($matches)) {
+                        $filepath = $matches['filepath'];
+                        // TODO: add support for fonts
+                        $line = str_replace($filepath, $this->_get_data_uri($filepath, 'image/' . $matches['extension']), $line);
+                        // TODO: copy $line to separate
+                    }
+                }
+            }
+
+            $parsed_text .= "$line\n";
         }
 
-        // $matches[1] = [comment]
-        // $matches[2] = [ruleset]
-        // $matches[3] = [selector]
-        // $matches[4] = [declaration]
-        // $matches[5] = [property]
-        // $matches[6] = [value]
-        // $matches[7] = [filepath]
-        // $matches[8] = [filenoext]
-        // $matches[9] = [extension]
-
-        if (!$type || $type == 'data_uri') {
-            // map arrays for data uri declarations
-            $data_uri_declarations = array_map(array($this, '_get_data_uri_declaration'),
-                $this->matches['filepath'], $this->matches['extension'],
-                $this->matches['value'], $this->matches['property']);
-
-            $this->text = $separate ?
-                implode("\n", array_map(array($this, '_get_separated_data_uri_ruleset'),
-                    $this->matches['selector'], $data_uri_declarations)) :
-                str_replace($this->matches['declaration'], $data_uri_declarations, $this->text);
-        }
-
+        $this->text = $parsed_text;
         return $this->text;
     }
 
@@ -154,24 +171,10 @@ class CSSUnity {
         return base64_encode(file_get_contents($filepath));
     }
 
-    private function _get_data_uri($filepath, $extension) {
+    private function _get_data_uri($filepath, $type) {
         $base64 = $this->_get_base64encoded_resource($filepath);
         if (empty($base64)) { return $filepath; }
-        return "data:image/$extension;base64,$base64";
-    }
-
-    private function _get_data_uri_value($filepath, $extension, $oldvalue) {
-        $data_uri = $this->_get_data_uri($filepath, $extension);
-        return str_replace($filepath, $data_uri, $oldvalue);
-    }
-
-    private function _get_data_uri_declaration($filepath, $extension, $oldvalue, $property) {
-        $data_uri_value = $this->_get_data_uri_value($filepath, $extension, $oldvalue);
-        return "$property:$data_uri_value;";
-    }
-
-    private function _get_separated_data_uri_ruleset($selector, $declaration) {
-        return "$selector { $declaration }";
+        return "data:$type;base64,$base64";
     }
 }
 ?>
