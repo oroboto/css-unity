@@ -25,14 +25,14 @@
             <h1>Demo</h1>
             <h2>Images</h2>
             <?php
-            $images = glob(dirname(__FILE__) . '/images/tango-icon-theme-0.8.90/32x32/actions/*.png');
-            if (count($images) > 0) { echo '<ul class="images clearfix">'; }
-            foreach ($images as $path) {
+            $icons = glob(dirname(__FILE__) . '/images/tango-icon-theme-0.8.90/32x32/actions/*.png');
+            if (count($icons) > 0) { echo '<ul class="icons clearfix">'; }
+            foreach ($icons as $path) {
                 $filename = basename($path);
                 $filenoext = basename($path, '.png');
                 echo "<li class=\"$filenoext\">$filename</li>\n";
             }
-            if (count($images) > 0) { echo '</ul>'; }
+            if (count($icons) > 0) { echo '</ul>'; }
             ?>
             <h2>Fonts</h2>
             <ul class="fonts">

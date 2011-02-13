@@ -12,7 +12,7 @@
 }
 
 @font-face {
-    font-family: 'QuickEndJerkRegular';
+    font-family: 'QuickEndJerk Regular';
     src: url('../fonts/Quick-End-Jerk-fontfacekit/quick_end_jerk-webfont.eot?') format('eot'),
          url('../fonts/Quick-End-Jerk-fontfacekit/quick_end_jerk-webfont.woff') format('woff'),
          url('../fonts/Quick-End-Jerk-fontfacekit/quick_end_jerk-webfont.ttf') format('truetype'),
@@ -47,7 +47,7 @@ li.document-new {
 }
 /* 7 shorthand after */
 li.document-open {
-    background:transparent url(../images/tango-icon-theme-0.8.90/32x32/actions/document-open.png) no-repeat;
+    background:url(../images/tango-icon-theme-0.8.90/32x32/actions/document-open.png) no-repeat;
 }
 /* 8 shorthand before and after */
 li.document-print-preview {
@@ -75,24 +75,38 @@ li.document-save {
 }
 /* 13 property before and after minified */
 li.edit-clear{display:block;background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-clear.png);position:relative;}
-/* 14 commented ruleset
+/* 14 commented ruleset *
 li.commented {
     background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/commented.png);
 }
-*/
+/**/
 /* 15 multiple selector ruleset */
-li.another-selector,
+#id,
+.class,
+element[attribute],
+element[attribute=value],
+element descendant,
+element descendant.class,
+element + adjacent,
+element:first-child,
 li.edit-copy {
     background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-copy.png);
 }
+/* 16 IE6 only (underscore hack) */
 li.edit-cut {
     background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-cut.png);
+    _background-image:url(../images/tango-icon-theme-0.8.90/32x32/emotes/face-crying.png);
 }
+/* 16 IE6/7 only (star hack) */
 li.edit-delete {
     background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-delete.png);
+    *background-image:url(../images/tango-icon-theme-0.8.90/32x32/emotes/face-sad.png);
 }
-li.edit-find-replace {
-    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-find-replace.png);
+/* 17 comments inside */
+li.edit-find-replace {/* */
+    /* */
+    /* */background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-find-replace.png);/* */
+    /* */
 }
 li.edit-find {
     background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-find.png);
@@ -253,7 +267,11 @@ li.view-refresh {
 li.window-new {
     background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/window-new.png);
 }
-.images li {
+.icons {
+    height:310px;
+    overflow:auto;
+}
+.icons li {
     background-position:50% 10px !important;
     background-repeat:no-repeat !important;
     float:left;
@@ -269,7 +287,7 @@ li.mountains-of-christmas {
     font:27px/36px 'MountainsofChristmasRegular',Arial,sans-serif;
 }
 li.quick-end-jerk {
-    font:18px/27px 'QuickEndJerkRegular',Arial,sans-serif;
+    font:18px/27px 'QuickEndJerk Regular',Arial,sans-serif;
 }
 .clearfix:after {
     content:".";
