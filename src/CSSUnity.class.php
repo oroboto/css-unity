@@ -32,6 +32,7 @@
 class CSSUnity {
     private $stylesheets;
     private $text = '';
+    private $mhtml = "/*\nContent-Type: multipart/related; boundary=\"|\"\n";
 
     // regular expression patterns
     const CSS_URL_PATTERN = '/url\([\'"]?(?P<filepath>(?P<filenoext>.+)?\.(?P<extension>[^\'")?#]+).*?)[\'"]?\)/i';
@@ -115,6 +116,9 @@ class CSSUnity {
             $this->combine_stylesheets();
         }
 
+        $write_data_uri = $type === false || $type === 'datauri';
+        $write_mhtml = $type === false || $type === 'mhtml';
+
         // strip comments
         $text = preg_replace(self::CSS_COMMENT_PATTERN, '', $this->text);
 
@@ -162,12 +166,35 @@ class CSSUnity {
                     if (!empty($matches)) {
                         if ($type === 'none') { continue; }
 
-                        $filepath = $matches['filepath'];
-                        // TODO: add support for fonts
-                        if ($type === false || $type === 'datauri') {
-                            $line = str_replace($filepath, $this->_get_data_uri($filepath, 'image/' . $matches['extension']), $line);
+                        // TODO: add support for underscore/star hacks
+                        if (preg_match('/^[_*]/', $line)) {
+                            $parsed_text .= "$line\n";
+                            continue;
                         }
-                        // TODO: copy $line to separate
+
+                        $oldline = $line;
+                        $filepath = $matches['filepath'];
+                        $base64 = $this->_get_base64_encoded_resource($filepath);
+
+                        // data URI
+                        // TODO: add support for fonts
+                        if ($write_data_uri) {
+                            $parsed_text .= str_replace($filepath,
+                                $this->_get_data_uri($filepath, 'image/' . $matches['extension'], $base64), $line) . "\n";
+                        }
+
+                        // MHTML
+                        if ($write_mhtml && !empty($base64)) {
+                            $parsed_text .= "*" . str_replace($filepath, $this->_get_mhtml_uri($filepath), $line) . "\n";
+                            $this->mhtml .= "--|\n";
+                            $this->mhtml .= "Content-Location:$filepath\n";
+                            $this->mhtml .= "Content-Transfer-Encoding:base64\n\n";
+                            $this->mhtml .= "$base64\n";
+                        }
+
+                        continue;
+                    } else {
+                        if ($separate === true) { continue; }
                     }
                 }
             }
@@ -178,19 +205,40 @@ class CSSUnity {
         // clean up empty rulesets
         $parsed_text = preg_replace(self::CSS_EMPTY_RULESET_PATTERN, '', $parsed_text);
 
+        if ($write_mhtml) {
+            // append MHTML ending
+            $this->mhtml .= "--|--\n*/\n";
+
+            // prepend MHTML to beginning
+            $parsed_text = $this->mhtml . $parsed_text;
+        }
+
         $this->text = $parsed_text;
         return $this->text;
     }
 
-    private function _get_base64encoded_resource($filepath) {
+    private function _get_base64_encoded_resource($filepath) {
         if (!file_exists($filepath)) { return; }
         return base64_encode(file_get_contents($filepath));
     }
 
-    private function _get_data_uri($filepath, $type) {
-        $base64 = $this->_get_base64encoded_resource($filepath);
-        if (empty($base64)) { return $filepath; }
+    private function _get_data_uri($input, $type, $base64=false) {
+        if ($base64 === false) {
+            $base64 = $this->_get_base64_encoded_resource($input);
+        }
+        if (empty($base64)) { return $input; }
         return "data:$type;base64,$base64";
+    }
+
+    private function _get_mhtml_uri($content_location) {
+        $full_page_url = $this->_get_full_page_url();
+        return "mhtml:$full_page_url!$content_location";
+    }
+
+    private function _get_full_page_url() {
+        $scheme = isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on" ? "https://" : "http://";
+        $port = $_SERVER["SERVER_PORT"] != "80" ? ":" . $_SERVER["SERVER_PORT"] : "";
+        return $scheme . $_SERVER["SERVER_NAME"] . $port . $_SERVER["REQUEST_URI"];
     }
 }
 ?>
