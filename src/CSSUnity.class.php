@@ -1,37 +1,43 @@
 <?php
-/*
-CSS Unity
-
-Copyright (C) 2011 Oroboto. All rights reserved.
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-*/
+/**
+ * CSS Unity
+ * @author Ryan <ryan@oroboto.com>
+ * @version 0.1
+ * @copyright Copyright (c) 2011 Oroboto
+ * @license http://www.opensource.org/licenses/mit-license.php MIT License
+ *
+ * Copyright (c) 2011 Oroboto. All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ */
 class CSSUnity {
     private $stylesheets;
     private $text = '';
 
-    const CSS_COMMENT_PATTERN = '/(?P<comment>\/\*(?:\s|.)*?\*\/)/';
+    // regular expression patterns
     const CSS_URL_PATTERN = '/url\([\'"]?(?P<filepath>(?P<filenoext>.+)?\.(?P<extension>[^\'")?#]+).*?)[\'"]?\)/i';
-    const CSS_NO_SEMICOLON_PATTERN = '/([^;\s])(})/';
+    const CSS_COMMENT_PATTERN = '/(?P<comment>\/\*(?:\s|.)*?\*\/)/';
+    const CSS_MULTIPLE_URL_PATTERN = '/(,)(url)/i';
+    const CSS_EMPTY_RULESET_PATTERN = '/[^}]+{\s*}/';
 
     function __construct($input) {
         header('Content-type: text/css');
@@ -95,8 +101,11 @@ class CSSUnity {
 
     /**
      * Parses CSS.
-     * @param string $type converts external resources to the specified type
-     *     (datauri|mhtml|none); false (default) to generate all in one
+     * @param bool|string $type converts external resources to specified type
+     *     - false (default) - converts all resources into one request
+     *     - datauri - converts data uris
+     *     - mhtml - converts MHTML for IE6/7
+     *     - none - strips all resources from text
      * @param string $separate outputs only the specified type and relevant text
      * @return string
      */
@@ -110,7 +119,7 @@ class CSSUnity {
         $text = preg_replace(self::CSS_COMMENT_PATTERN, '', $this->text);
 
         // split multiple @font-face urls into separate lines
-        $text = preg_replace('/(,)(url)/i', "$1\n$2", $text);
+        $text = preg_replace(self::CSS_MULTIPLE_URL_PATTERN, "$1\n$2", $text);
 
         $parsed_text = '';
 
@@ -151,9 +160,13 @@ class CSSUnity {
                     // $matches[3] = [extension]
                     preg_match(self::CSS_URL_PATTERN, $line, $matches);
                     if (!empty($matches)) {
+                        if ($type === 'none') { continue; }
+
                         $filepath = $matches['filepath'];
                         // TODO: add support for fonts
-                        $line = str_replace($filepath, $this->_get_data_uri($filepath, 'image/' . $matches['extension']), $line);
+                        if ($type === false || $type === 'datauri') {
+                            $line = str_replace($filepath, $this->_get_data_uri($filepath, 'image/' . $matches['extension']), $line);
+                        }
                         // TODO: copy $line to separate
                     }
                 }
@@ -161,6 +174,9 @@ class CSSUnity {
 
             $parsed_text .= "$line\n";
         }
+
+        // clean up empty rulesets
+        $parsed_text = preg_replace(self::CSS_EMPTY_RULESET_PATTERN, '', $parsed_text);
 
         $this->text = $parsed_text;
         return $this->text;
