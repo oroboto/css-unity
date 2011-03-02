@@ -55,14 +55,6 @@ class CSSUnity {
         }
     }
 
-    public function unify($type=false, $separate=false) {
-        // convert external resources to encoded text
-        $this->parse($type, $separate);
-
-        // write text to response
-        echo $this->text;
-    }
-
     public function combine_stylesheets() {
         foreach ($this->stylesheets as $stylesheet) {
             // add space between individual stylesheets
@@ -101,7 +93,7 @@ class CSSUnity {
     }
 
     /**
-     * Parses CSS.
+     * Parses CSS, converting external resources to encoded text.
      * @param bool|string $type converts external resources to specified type
      *     - false (default) - converts all resources into one request
      *     - datauri - converts data uris
@@ -142,11 +134,11 @@ class CSSUnity {
 
             // save at/selector blocks for later use; otherwise, parse line normally
             if ($ends_with_open_curly_brace) {
-                // start of block
+                // start of block; set lookbehinds
                 $at_block = $starts_with_at ? $line : $at_block;
                 $selector = !$starts_with_at ? $line : $selector;
             } else if ($line === '}') {
-                // end of block
+                // end of block; remove related lookbehinds
                 if (!empty($selector)) {
                     $selector = '';
                 } else {
