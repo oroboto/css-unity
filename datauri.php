@@ -20,21 +20,35 @@
         </hgroup>
     </header>
     <nav>
-        <ul>
-            <li><a href="./">Home</a></li>
-            <li><a href="./datauri">Data URI</a></li>
-            <li><a href="./mhtml">MHTML</a></li>
-            <li><a href="./separate">Separate</a></li>
-            <li><a href="./original">Original</a></li>
+        <ul class="clearfix">
+            <li>
+                <a href="./">Home</a>
+                <p>CSS Unity default behavior in action. All image resources have been converted to data URIs and MHTML and are included as one CSS file.</p>
+            </li>
+            <li>
+                <strong>Data URI</strong>
+                <p>Only data URIs are written. IE8+/Moz/Webkit/Opera only.</p>
+            </li>
+            <li>
+                <a href="./mhtml">MHTML</a>
+                <p>Only MHTML is written. IE6/7 only.</p>
+            </li>
+            <li>
+                <a href="./separate">Separate</a>
+                <p>Plain CSS, data URI-related CSS, and MHTML CSS are split into separate requests. Conditional comments are used to target supported browsers.</p>
+            </li>
+            <li>
+                <a href="./original">Original</a>
+                <p>Original CSS before any manipulation by CSS Unity.</p>
+            </li>
         </ul>
     </nav>
     <div id="content">
-        <article id="demo">
-            <h1>Demo</h1>
+        <section class="icons">
             <h2>Images</h2>
             <?php
             $icons = glob(dirname(__FILE__) . '/images/tango-icon-theme-0.8.90/32x32/actions/*.png');
-            if (count($icons) > 0) { echo '<ul class="icons clearfix">'; }
+            if (count($icons) > 0) { echo '<ul class="clearfix">'; }
             foreach ($icons as $path) {
                 $filename = basename($path);
                 $filenoext = basename($path, '.png');
@@ -42,12 +56,14 @@
             }
             if (count($icons) > 0) { echo '</ul>'; }
             ?>
+        </section>
+        <section class="fonts">
             <h2>Fonts</h2>
-            <ul class="fonts">
+            <ul>
                 <li class="quick-end-jerk">Quick End Jerk</li>
                 <li class="mountains-of-christmas">Mountains of Christmas</li>
             </ul>
-        </article>
+        </section>
     </div>
 </body>
 </html>
