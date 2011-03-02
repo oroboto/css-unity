@@ -40,8 +40,12 @@ class CSSUnity {
     const CSS_MULTIPLE_URL_PATTERN = '/(,)(url)/i';
     const CSS_EMPTY_RULESET_PATTERN = '/[^}]+{\s*}/';
 
+    /**
+     * Creates a new instance of this class.
+     *
+     * @param array|string $input string array or comma-separated string of paths to stylesheets
+     */
     function __construct($input) {
-        header('Content-type: text/css');
         if (empty($input)) { die; }
 
         // set array argument to private array
@@ -55,6 +59,11 @@ class CSSUnity {
         }
     }
 
+    /**
+     * Combines multiple stylesheets into one request.
+     *
+     * @return string
+     */
     public function combine_stylesheets() {
         foreach ($this->stylesheets as $stylesheet) {
             // add space between individual stylesheets
@@ -69,17 +78,24 @@ class CSSUnity {
             }
         }
 
-        if (!empty($this->text)) {
-            $this->text = $this->tidy();
-        }
-
         return $this->text;
     }
 
-    public function tidy() {
+    /**
+     * Normalizes stylesheets to aid in parsing.
+     * Uses CSSTidy for formatting.
+     *
+     * @return string
+     */
+    public function normalize() {
+        // read files in array and append to single string
         if (empty($this->text)) {
-            // read files in array and append to single string
             $this->combine_stylesheets();
+        }
+
+        // exit early if still empty
+        if (empty($this->text)) {
+            return $this->text;
         }
 
         // CSSTidy
@@ -94,6 +110,7 @@ class CSSUnity {
 
     /**
      * Parses CSS, converting external resources to encoded text.
+     *
      * @param bool|string $type converts external resources to specified type
      *     - false (default) - converts all resources into one request
      *     - datauri - converts data uris
@@ -103,11 +120,17 @@ class CSSUnity {
      * @return string
      */
     public function parse($type=false, $separate=false) {
+        // get normalized CSS
         if (empty($this->text)) {
-            // read files in array and append to single string
-            $this->combine_stylesheets();
+            $this->normalize();
         }
 
+        // exit early if still empty
+        if (empty($this->text)) {
+            return $this->text;
+        }
+
+        // Boolean variables to determine output
         $write_data_uri = $type === false || $type === 'datauri';
         $write_mhtml = $type === false || $type === 'mhtml';
 
