@@ -154,6 +154,7 @@ class CSSUnity {
                     $font_face_family = '';
                 }
             } else {
+                // inside block
                 if ($inside_font_face) {
                     $font_face_family = $starts_with_font_family ? $line : $font_face_family;
                     // TODO: convert fonts to data uris
@@ -164,6 +165,7 @@ class CSSUnity {
                     // $matches[3] = [extension]
                     preg_match(self::CSS_URL_PATTERN, $line, $matches);
                     if (!empty($matches)) {
+                        // go to next line if resources are stripped
                         if ($type === 'none') { continue; }
 
                         // TODO: add support for underscore/star hacks
@@ -172,7 +174,6 @@ class CSSUnity {
                             continue;
                         }
 
-                        $oldline = $line;
                         $filepath = $matches['filepath'];
                         $base64 = $this->_get_base64_encoded_resource($filepath);
 
@@ -185,20 +186,23 @@ class CSSUnity {
 
                         // MHTML
                         if ($write_mhtml && !empty($base64)) {
-                            $parsed_text .= "*" . str_replace($filepath, $this->_get_mhtml_uri($filepath), $line) . "\n";
-                            $this->mhtml .= "--|\n";
-                            $this->mhtml .= "Content-Location:$filepath\n";
+                            $content_location = str_replace('/', '_', $filepath);
+                            $parsed_text .= "*" . str_replace($filepath, $this->_get_mhtml_uri($content_location), $line);
+                            $this->mhtml .= "\n--|\n";
+                            $this->mhtml .= "Content-Location:$content_location\n";
                             $this->mhtml .= "Content-Transfer-Encoding:base64\n\n";
                             $this->mhtml .= "$base64\n";
                         }
 
                         continue;
                     } else {
+                        // no action was performed on the line, so skip
                         if ($separate === true) { continue; }
                     }
                 }
             }
 
+            // no action was performed on the line, so write as-is
             $parsed_text .= "$line\n";
         }
 
@@ -207,7 +211,7 @@ class CSSUnity {
 
         if ($write_mhtml) {
             // append MHTML ending
-            $this->mhtml .= "--|--\n*/\n";
+            $this->mhtml .= "\n--|--\n*/\n";
 
             // prepend MHTML to beginning
             $parsed_text = $this->mhtml . $parsed_text;
@@ -231,11 +235,11 @@ class CSSUnity {
     }
 
     private function _get_mhtml_uri($content_location) {
-        $full_page_url = $this->_get_full_page_url();
+        $full_page_url = $this->_get_absolute_uri();
         return "mhtml:$full_page_url!$content_location";
     }
 
-    private function _get_full_page_url() {
+    private function _get_absolute_uri() {
         $scheme = isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on" ? "https://" : "http://";
         $port = $_SERVER["SERVER_PORT"] != "80" ? ":" . $_SERVER["SERVER_PORT"] : "";
         return $scheme . $_SERVER["SERVER_NAME"] . $port . $_SERVER["REQUEST_URI"];
