@@ -32,30 +32,39 @@
 class CSSUnity {
     private $stylesheets;
     private $text = '';
-    private $mhtml = "/*\nContent-Type: multipart/related; boundary=\"|\"\n";
 
     // regular expression patterns
     const CSS_URL_PATTERN = '/url\([\'"]?(?P<filepath>(?P<filenoext>.+)?\.(?P<extension>[^\'")?#]+).*?)[\'"]?\)/i';
     const CSS_COMMENT_PATTERN = '/(?P<comment>\/\*(?:\s|.)*?\*\/)/';
     const CSS_MULTIPLE_URL_PATTERN = '/(,)(url)/i';
-    const CSS_EMPTY_RULESET_PATTERN = '/[^}]+{\s*}/';
 
     /**
      * Creates a new instance of this class.
      *
      * @param array|string $input string array or comma-separated string of paths to stylesheets
+     * @param bool $recursive if input contains directories, recurses through all subdirectories
      */
-    function __construct($input) {
-        if (empty($input)) { die; }
-
-        // set array argument to private array
-        if (is_array($input)) {
-            $this->stylesheets = $input;
+    function __construct($input, $recursive=false) {
+        if (empty($input)) {
+            fwrite(STDERR, "Input is required.\n");
+            exit(1);
         }
 
-        // split string argument to private array
-        if (is_string($input)) {
-            $this->stylesheets = explode(',', $input);
+        $filepaths;
+        if (is_array($input)) {
+            // set array argument to private array
+            $filepaths = $input;
+        } else if (is_string($input)) {
+            // split string argument to private array
+            $filepaths = explode(',', $input);
+        } else {
+            fwrite(STDERR, "Input must be a string array or comma-separated string of paths.\n");
+            exit(2);
+        }
+
+        // add files to stylesheet array
+        foreach ($filepaths as $filepath) {
+            $this->_add_files_to_array($filepath, $this->stylesheets, $recursive);
         }
     }
 
@@ -90,7 +99,7 @@ class CSSUnity {
     public function normalize() {
         // read files in array and append to single string
         if (empty($this->text)) {
-            $this->combine_stylesheets();
+            $this->text = $this->combine_stylesheets();
         }
 
         // exit early if still empty
@@ -99,7 +108,7 @@ class CSSUnity {
         }
 
         // CSSTidy
-        include('../lib/CSSTidy/class.csstidy.php');
+        include($this->_get_dirname(__FILE__) . '../lib/CSSTidy/class.csstidy.php');
         $css = new csstidy();
         $css->set_cfg('preserve_css', true);
         $css->set_cfg('remove_last_;', false);
@@ -113,16 +122,17 @@ class CSSUnity {
      *
      * @param bool|string $type converts external resources to specified type
      *     - false (default) - converts all resources into one request
-     *     - datauri - converts data uris
+     *     - datauri - converts data URIs
      *     - mhtml - converts MHTML for IE6/7
-     *     - none - strips all resources from text
+     *     - nores - strips all resources from text
      * @param string $separate outputs only the specified type and relevant text
+     * @param string $mhtml_uri absolute URI to use for MHTML
      * @return string
      */
-    public function parse($type=false, $separate=false) {
+    public function parse($type=false, $separate=false, $mhtml_uri=false) {
         // get normalized CSS
         if (empty($this->text)) {
-            $this->normalize();
+            $this->text = $this->normalize();
         }
 
         // exit early if still empty
@@ -141,6 +151,12 @@ class CSSUnity {
         $text = preg_replace(self::CSS_MULTIPLE_URL_PATTERN, "$1\n$2", $text);
 
         $parsed_text = '';
+        $mhtml = '';
+
+        if ($write_mhtml) {
+            // write MHTML header
+            $mhtml = "/*\nContent-Type: multipart/related; boundary=\"|\"\n";
+        }
 
         // variables to provide loop lookbehind
         $at_block = '';
@@ -163,10 +179,16 @@ class CSSUnity {
             } else if ($line === '}') {
                 // end of block; remove related lookbehinds
                 if (!empty($selector)) {
+                    // remove empty ruleset
+                    $parsed_text = $this->_str_remove_end($parsed_text, "$selector\n", $empty);
                     $selector = '';
+                    if ($empty) { continue; }
                 } else {
+                    // remove empty at-block
+                    $parsed_text = $this->_str_remove_end($parsed_text, "$at_block\n", $empty);
                     $at_block = '';
                     $font_face_family = '';
+                    if ($empty) { continue; }
                 }
             } else {
                 // inside block
@@ -181,9 +203,10 @@ class CSSUnity {
                     preg_match(self::CSS_URL_PATTERN, $line, $matches);
                     if (!empty($matches)) {
                         // go to next line if resources are stripped
-                        if ($type === 'none') { continue; }
+                        if ($type === 'nores') { continue; }
 
                         // TODO: add support for underscore/star hacks
+                        // skip lines that have underscore/star hacks
                         if (preg_match('/^[_*]/', $line)) {
                             $parsed_text .= "$line\n";
                             continue;
@@ -202,41 +225,80 @@ class CSSUnity {
                         // MHTML
                         if ($write_mhtml && !empty($base64)) {
                             $content_location = str_replace('/', '_', $filepath);
-                            $parsed_text .= "*" . str_replace($filepath, $this->_get_mhtml_uri($content_location), $line);
-                            $this->mhtml .= "\n--|\n";
-                            $this->mhtml .= "Content-Location:$content_location\n";
-                            $this->mhtml .= "Content-Transfer-Encoding:base64\n\n";
-                            $this->mhtml .= "$base64\n";
+                            $parsed_text .= "*" . str_replace($filepath,
+                                $this->_get_mhtml_uri($mhtml_uri, $content_location), $line) . "\n";
+                            $mhtml .= "\n--|\n";
+                            $mhtml .= "Content-Location:$content_location\n";
+                            $mhtml .= "Content-Transfer-Encoding:base64\n\n";
+                            $mhtml .= "$base64\n";
                         }
 
                         continue;
                     } else {
-                        // no action was performed on the line, so skip
-                        if ($separate === true) { continue; }
-                    }
-                }
-            }
+                        // no matches
+                        if ($separate) {
+                            // write line as-is
+                            if ($type === 'nores') {
+                                $parsed_text .= "$line\n";
+                            }
 
-            // no action was performed on the line, so write as-is
+                            // skip to next line
+                            continue;
+                        }
+                    } // matches
+                } // inside font face
+            } // inside block
+
+            // no action was performed on the line, so write line as-is
             $parsed_text .= "$line\n";
-        }
-
-        // clean up empty rulesets
-        $parsed_text = preg_replace(self::CSS_EMPTY_RULESET_PATTERN, '', $parsed_text);
+        } // foreach
 
         if ($write_mhtml) {
-            // append MHTML ending
-            $this->mhtml .= "\n--|--\n*/\n";
+            // append MHTML footer
+            $mhtml .= "\n--|--\n*/\n";
 
             // prepend MHTML to beginning
-            $parsed_text = $this->mhtml . $parsed_text;
+            $parsed_text = $mhtml . $parsed_text;
         }
 
-        $this->text = $parsed_text;
-        return $this->text;
+        return trim($parsed_text);
+    }
+
+    function _add_files_to_array($filepath, &$array, $recursive=false) {
+        $filepath = realpath($filepath);
+        // add file to array
+        if (is_file($filepath)) {
+            $array[] = $filepath;
+            return;
+        }
+
+        // read directory
+        if (is_dir($filepath)) {
+            $files = scandir($filepath);
+            foreach ($files as $file) {
+                // skip . and ..
+                if ($file === "." || $file === "..") { continue; }
+
+                $fullpath = "$filepath/$file";
+
+                // add file to array
+                if (is_file($fullpath)) {
+                    $array[] = $fullpath;
+                    continue;
+                }
+
+                // TODO: add support for recursion (relative url paths need to be adjusted)
+                //// recurse directory
+                //if (is_dir($fullpath) && $recursive) {
+                //    _add_files_to_array($fullpath, $array, $recursive);
+                //}
+            }
+        }
     }
 
     private function _get_base64_encoded_resource($filepath) {
+        // TODO: add support for stylesheets from different directories
+        $filepath = $this->_get_dirname($this->stylesheets[0]) . $filepath;
         if (!file_exists($filepath)) { return; }
         return base64_encode(file_get_contents($filepath));
     }
@@ -249,15 +311,40 @@ class CSSUnity {
         return "data:$type;base64,$base64";
     }
 
-    private function _get_mhtml_uri($content_location) {
-        $full_page_url = $this->_get_absolute_uri();
-        return "mhtml:$full_page_url!$content_location";
+    private function _get_mhtml_uri($mhtml_uri, $content_location) {
+        if (!$this->_is_cli()) {
+            $mhtml_uri = $this->_get_absolute_uri();
+        }
+        return "mhtml:$mhtml_uri!$content_location";
     }
 
     private function _get_absolute_uri() {
         $scheme = isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on" ? "https://" : "http://";
         $port = $_SERVER["SERVER_PORT"] != "80" ? ":" . $_SERVER["SERVER_PORT"] : "";
         return $scheme . $_SERVER["SERVER_NAME"] . $port . $_SERVER["REQUEST_URI"];
+    }
+
+    private function _is_cli() {
+        return (php_sapi_name() == 'cli' && empty($_SERVER['REMOTE_ADDR']));
+    }
+
+    private function _get_dirname($file) {
+        return str_replace('//', '/', dirname($file) . '/');
+    }
+
+    private function _str_ends_with($haystack, $needle) {
+        $haystacklen = strlen($haystack);
+        $needlelen = strlen($needle);
+        if ($needlelen > $haystacklen) return false;
+        return substr_compare($haystack, $needle, -$needlelen) === 0;
+    }
+
+    private function _str_remove_end($haystack, $needle, &$ends_with_needle) {
+        $ends_with_needle = $this->_str_ends_with($haystack, $needle);
+        if ($ends_with_needle) {
+            return substr($haystack, 0, strrpos($haystack, $needle));
+        }
+        return $haystack;
     }
 }
 ?>
