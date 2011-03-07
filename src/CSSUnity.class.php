@@ -216,10 +216,16 @@ class CSSUnity {
                         $base64 = $this->_get_base64_encoded_resource($filepath);
 
                         // data URI
-                        // TODO: add support for fonts
                         if ($write_data_uri) {
-                            $parsed_text .= str_replace($filepath,
-                                $this->_get_data_uri($filepath, 'image/' . $matches['extension'], $base64), $line) . "\n";
+                            $data_uri = $this->_get_data_uri($filepath, 'image/' . $matches['extension'], $base64);
+
+                            // ignore data URIs larger than 32KB for IE8 compatibility
+                            if (strlen($data_uri) > 32768) {
+                                $parsed_text .= "$line\n";
+                                continue;
+                            }
+
+                            $parsed_text .= str_replace($filepath, $data_uri, $line) . "\n";
                         }
 
                         // MHTML
