@@ -1,17 +1,26 @@
 CSS Unity
 =========
 
-CSS Unity is a utility that combines a stylesheet's external resources, such as images, into the stylesheet itself as base64 encoded text by using data URIs and MHTML.
+Trying to increase your web site's performance by reducing the number of HTTP
+requests, but tired of creating and maintaining [CSS sprites](http://css-tricks.com/css-sprites)
+for all of your images?
+
+**CSS Unity** is a utility that combines a stylesheet's external resources, such as
+images, into the stylesheet itself as base64 encoded text by using data URIs and
+MHTML.
 
 Features
 --------
 
-* encodes resources into data URIs, supported by [modern browsers](http://en.wikipedia.org/wiki/Data_URI_scheme#Web_browser_support)
+* encodes resources into data URIs, supported by
+  [modern browsers](http://en.wikipedia.org/wiki/Data_URI_scheme#Web_browser_support)
 * encodes resources into MHTML as well, to support IE6/7
 * combines multiple stylesheets into one request
 * uses [CSSTidy](https://github.com/oroboto/CSSTidy) to optimize styles
-* embeds encoded resources into one stylesheet, or can be split into separate stylesheets
-* can be used in realtime on your web server, or generate files from the command line instead
+* embeds encoded resources into one stylesheet, or can be split into separate
+  stylesheets
+* can be used in realtime on your web server, or generate files from the command
+  line instead
 
 Requirements
 ------------
@@ -32,7 +41,8 @@ Optionally, you can grant execute permissions to the script and run it directly:
     $ chmod +x unify.php
     $ unify.php
 
-See [PHP Manual: Executing PHP Files](http://php.net/manual/en/features.commandline.usage.php) for further information.
+See [PHP Manual: Executing PHP Files](http://php.net/manual/en/features.commandline.usage.php)
+for further information.
 
 ### Options
 
@@ -66,4 +76,31 @@ License
 
 [MIT License](http://www.opensource.org/licenses/mit-license.php)
 
-CSSTidy is distributed under terms of the GNU Lesser General Public License (LGPL) 2.1.
+CSSTidy is distributed under terms of the GNU Lesser General Public License
+(LGPL) 2.1.
+
+Future (TODO)
+-------------
+
+* remove dependency on third party libraries (CSSTidy)
+* implement subdirectory recursion
+* port to other languages, such as Python/Ruby/Java/C#
+* gzip/deflate compression and browser caching?
+
+Further Reading
+---------------
+
+### Data URIs
+* [Data URI scheme - Wikipedia, the free encyclopedia](http://en.wikipedia.org/wiki/Data_URI_scheme)
+* [data Protocol on MSDN](http://msdn.microsoft.com/en-us/library/cc848897.aspx)
+* [data:urls – what are they and how to use them / Stoyan's phpied.com](http://www.phpied.com/data-urls-what-are-they-and-how-to-use/)
+
+### MHTML
+* [MHTML - Wikipedia, the free encyclopedia](http://en.wikipedia.org/wiki/MHTML)
+* [MHTML – when you need data: URIs in IE7 and under / Stoyan's phpied.com](http://www.phpied.com/mhtml-when-you-need-data-uris-in-ie7-and-under/)
+* [The proper MHTML syntax / Stoyan's phpied.com](http://www.phpied.com/the-proper-mhtml-syntax/)
+* [Inline MHTML+Data URIs / Stoyan's phpied.com](http://www.phpied.com/inline-mhtml-data-uris/)
+
+### CSSEmbed
+* [Automatic data URI embedding in CSS files | NCZOnline](http://www.nczonline.net/blog/2009/11/03/automatic-data-uri-embedding-in-css-files/)
+* [cssembed on GitHub](https://github.com/nzakas/cssembed/)
