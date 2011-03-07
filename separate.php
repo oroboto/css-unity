@@ -10,9 +10,9 @@
     <meta name="description" content="CSS Unity is a utility that combines a stylesheet's external resources, such as images, into the stylesheet itself as base64 encoded text by using data URIs and MHTML." />
     <meta name="keywords" content="css unity, css, unity, stylesheet, images, data URI, MHTML" />
     <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/css.php?s=reset.css,style.css&amp;type=none" />
-    <!--[if (gt IE 7)|!(IE)]><!--><link type="text/css" rel="stylesheet" href="styles/css.php?s=style.css&amp;type=datauri&amp;separate" /><!--<![endif]-->
-    <!--[if lte IE 7]><link type="text/css" rel="stylesheet" href="styles/css.php?s=style.css&amp;type=mhtml&amp;separate" /><![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/css.php?i=reset.css,style.css&amp;type=nores" />
+    <!--[if (gt IE 7)|!(IE)]><!--><link type="text/css" rel="stylesheet" href="styles/css.php?i=style.css&amp;type=datauri&amp;separate" /><!--<![endif]-->
+    <!--[if lte IE 7]><link type="text/css" rel="stylesheet" href="styles/css.php?i=style.css&amp;type=mhtml&amp;separate" /><![endif]-->
 </head>
 <body>
     <header>

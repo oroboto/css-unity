@@ -10,7 +10,7 @@ header('Content-type: text/css');
 require_once('../src/CSSUnity.class.php');
 
 // instantiate object with comma-separated list of file paths from query string
-$cssunity = new CSSUnity($_GET['s']);
+$cssunity = new CSSUnity($_GET['i']);
 
 // other public functions can be used, for simple combination or normalization
 //echo $cssunity->combine_files();
