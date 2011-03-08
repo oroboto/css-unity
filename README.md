@@ -5,9 +5,9 @@ Trying to increase your web site's performance by reducing the number of HTTP
 requests, but tired of creating and maintaining [CSS sprites](http://css-tricks.com/css-sprites)
 for all of your images?
 
-**CSS Unity** is a utility that combines a stylesheet's external resources, such as
-images, into the stylesheet itself as base64 encoded text by using data URIs and
-MHTML.
+**CSS Unity** is a utility that combines a stylesheet's external resources, such
+as images, into the stylesheet itself as base64 encoded text by using data URIs
+and MHTML.
 
 Features
 --------
@@ -26,9 +26,25 @@ Requirements
 ------------
 
 * PHP 5+
+    * Ubuntu requires `php-cli` package for command line functionality.
 
-Command Line
-------------
+Usage
+-----
+
+### Web Server
+
+1.  Copy `lib/` and `src/` directories to your server.
+2.  Modify the path in `styles/css.php` to point to `src/CSSUnity.class.php` on
+    your server.
+3.  Copy `styles/css.php` to your server, ideally to the same directory as your
+    stylesheets, but so that your modified path in step 2 works. If you place
+    `css.php` in a different directory, modify the variable `$CSSUNITY_DIR` to
+    be relative to your new location.
+4.  Change your web pages' stylesheet links to use `css.php`. Options are
+    provided via query string parameters, using the same names as are used on
+    the command line (see Command Line Options below).
+
+### Command Line
 
 PHP command line script can be found at `src/unify.php`.
 
@@ -44,9 +60,10 @@ Optionally, you can grant execute permissions to the script and run it directly:
 See [PHP Manual: Executing PHP Files](http://php.net/manual/en/features.commandline.usage.php)
 for further information.
 
-### Options
+#### Options
 
-Executing the script without options will display the following:
+Executing `unify.php` from the command line without options will display the
+following:
 
     Usage: unify.php [options]
     Executes CSS Unity from the command line.
@@ -82,15 +99,21 @@ CSSTidy is distributed under terms of the GNU Lesser General Public License
 Future (TODO)
 -------------
 
-* remove dependency on third party libraries (CSSTidy)
-* implement subdirectory recursion
-* port to other languages, such as Python/Ruby/Java/C#
-* gzip/deflate compression and browser caching?
+*   support font resources in @font-face rules
+*   include stylesheets from @import rules into combined text, ignoring duplicates
+*   combine rulesets to avoid duplicate data URIs
+*   remove dependency on third party libraries (CSSTidy)
+*   implement subdirectory recursion and support for stylesheets from different
+    directories
+*   port to other languages, such as Python/Ruby/Java/C#
+*   add support for underscore/star hacks?
+*   gzip/deflate compression and browser caching?
 
 Further Reading
 ---------------
 
 ### Data URIs
+* [RFC 2397 - The "data" URL scheme](http://tools.ietf.org/html/rfc2397)
 * [Data URI scheme - Wikipedia, the free encyclopedia](http://en.wikipedia.org/wiki/Data_URI_scheme)
 * [data Protocol on MSDN](http://msdn.microsoft.com/en-us/library/cc848897.aspx)
 * [data:urls – what are they and how to use them / Stoyan's phpied.com](http://www.phpied.com/data-urls-what-are-they-and-how-to-use/)
