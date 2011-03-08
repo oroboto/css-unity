@@ -46,8 +46,7 @@ class CSSUnity {
      */
     function __construct($input, $recursive=false) {
         if (empty($input)) {
-            fwrite(STDERR, "Input is required.\n");
-            exit(1);
+            $this->_error_write("Input is required.", 1);
         }
 
         $filepaths;
@@ -58,8 +57,7 @@ class CSSUnity {
             // split string argument to private array
             $filepaths = explode(',', $input);
         } else {
-            fwrite(STDERR, "Input must be a string array or comma-separated string of paths.\n");
-            exit(2);
+            $this->_error_write("Input must be a string array or comma-separated string of paths.", 2);
         }
 
         // add files to stylesheet array
@@ -82,8 +80,10 @@ class CSSUnity {
 
             // concatenate stylesheet contents
             if (file_exists($stylesheet)) {
-                $this->text .= "/* FILE: $stylesheet */";
-                $this->text .= trim(file_get_contents($stylesheet));
+                $stylesheet_text = "/* FILE: $stylesheet */";
+                $stylesheet_text .= trim(file_get_contents($stylesheet));
+                // TODO: include stylesheets from @import rules into combined text, ignoring duplicates
+                $this->text .= $stylesheet_text;
             }
         }
 
@@ -194,7 +194,7 @@ class CSSUnity {
                 // inside block
                 if ($inside_font_face) {
                     $font_face_family = $starts_with_font_family ? $line : $font_face_family;
-                    // TODO: convert fonts to data uris
+                    // TODO: convert fonts to data URIs
                 } else {
                     // fill match array
                     // $matches[1] = [filepath]
@@ -205,6 +205,14 @@ class CSSUnity {
                         // go to next line if resources are stripped
                         if ($type === 'nores') { continue; }
 
+                        // TODO: include stylesheets from @import rules into combined text, ignoring duplicates
+                        // ignore @import rules
+                        if (strpos($line, '@import') === 0) {
+                            $line = str_replace('"', '', $line);
+                            $parsed_text .= "$line\n";
+                            continue;
+                        }
+
                         // TODO: add support for underscore/star hacks
                         // skip lines that have underscore/star hacks
                         if (preg_match('/^[_*]/', $line)) {
@@ -212,6 +220,7 @@ class CSSUnity {
                             continue;
                         }
 
+                        // get base64 encoded resource
                         $filepath = $matches['filepath'];
                         $base64 = $this->_get_base64_encoded_resource($filepath);
 
@@ -351,6 +360,18 @@ class CSSUnity {
             return substr($haystack, 0, strrpos($haystack, $needle));
         }
         return $haystack;
+    }
+
+    private function _error_write($message, $status=false) {
+        if ($this->_is_cli()) {
+            fwrite(STDERR, "$message\n");
+        } else {
+            echo "$message\n";
+        }
+
+        if (is_int($status)) {
+            exit($status);
+        }
     }
 }
 ?>
