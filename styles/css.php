@@ -1,4 +1,7 @@
 <?php
+// change this line if you move this file to a different location
+$CSSUNITY_DIR = '../src';
+
 // show errors
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
@@ -6,11 +9,13 @@ ini_set('display_errors', '1');
 // set response header
 header('Content-type: text/css');
 
-// include class
-require_once('../src/CSSUnity.class.php');
+// parse options
+require_once("$CSSUNITY_DIR/CSSUnityOptionParser.class.php");
+$options = new CSSUnityOptionParser($_GET);
 
-// instantiate object with comma-separated list of file paths from query string
-$cssunity = new CSSUnity($_GET['i']);
+// instantiate object with input
+require_once("$CSSUNITY_DIR/CSSUnity.class.php");
+$cssunity = new CSSUnity($options->input);
 
 // other public functions can be used, for simple combination or normalization
 //echo $cssunity->combine_files();
@@ -22,5 +27,6 @@ $cssunity = new CSSUnity($_GET['i']);
 //     type=datauri
 //     type=mhtml&separate
 // default arguments (false, false) are used if no options are specified
-echo $cssunity->parse(isset($_GET['type']) ? $_GET['type'] : false, isset($_GET['separate']));
+$type = $options->type !== 'all' ? $options->type : false;
+echo $cssunity->parse($type, $options->separate);
 ?>

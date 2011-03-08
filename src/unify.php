@@ -54,68 +54,38 @@ echo '$options: ';
 var_dump($options);
 //*/
 
-function getopt_or_default($options, $keys, $default) {
-    $value = $default;
-    foreach ($keys as $key) {
-        if (isset($options[$key])) {
-            return $options[$key];
-        }
-    }
-    return $value;
-}
-
-// parse command line options into variables
-$input = getopt_or_default($options, array('input', 'i'), null);
-$type = getopt_or_default($options, array('type', 't'), 'all');
-$output_dir = getopt_or_default($options, array('output', 'o'), getcwd());
-$inputs = explode(',', $input);
-$inputpath = pathinfo($inputs[0]);
-$output_name = getopt_or_default($options, array('output-name', 'n'), $inputpath['filename']);
-$separate = isset($options['separate']) || isset($options['s']);
-$mhtml_uri = getopt_or_default($options, array('mhtml-uri', 'm'), false);
-if ($mhtml_uri) {
-    // add trailing slash
-    $mhtml_uri .= '/';
-
-    // remove duplicates
-    $mhtml_uri = preg_replace('/\/{2}$/', '/', $mhtml_uri);
-} else {
-    if ($type === 'all' || $type === 'mhtml') {
-        fwrite(STDERR, "Absolute URI for MHTML is required if type is 'all' or 'mhtml'.\n");
-        fwrite(STDERR, "Try 'unify.php' for more information.\n");
-        exit(2);
-    }
-}
-$recursive = isset($options['recursive']) || isset($options['r']);
-
-// include class
-require_once('CSSUnity.class.php');
+// parse options
+require_once('CSSUnityOptionParser.class.php');
+$options = new CSSUnityOptionParser($options);
 
 // instantiate object with input
-$cssunity = new CSSUnity($input);
+require_once('CSSUnity.class.php');
+$cssunity = new CSSUnity($options->input);
 
 // other public functions can be used, for simple combination or normalization
 //$output = $cssunity->combine_files();
 //$output = $cssunity->normalize();
 
+function write_file($name, $cssunity, $type, $separate, $mhtml_uri) {
+    file_put_contents($name, $cssunity->parse($type, $separate, "$mhtml_uri$name"));
+}
+
 // parse stylesheets according to specified options and write to file(s)
-if ($separate) {
+if ($options->separate) {
     // determine output types to be written
-    $output_types[] = $type;
-    if ($type === 'all') {
+    $output_types[] = $options->type;
+    if ($options->type === 'all') {
         $output_types = array('nores', 'datauri', 'mhtml');
     }
 
     // write file for each output type
     foreach ($output_types as $output_type) {
-        $output_basename = "$output_name.$output_type.css";
-        //echo "file_put_contents($output_basename, \$cssunity->parse($output_type, $separate, $mhtml_uri$output_basename))\n";
-        //echo $cssunity->parse($output_type, $separate, "$mhtml_uri$output_basename");
-        file_put_contents($output_basename, $cssunity->parse($output_type, $separate, "$mhtml_uri$output_basename"));
+        $output_basename = $options->output_name . ".$output_type.css";
+        write_file($output_basename, $cssunity, $output_type, $options->separate, $options->mhtml_uri);
     }
 } else {
-    $output_basename = "$output_name.uni.css";
-    $type = $type !== 'all' ? $type : false;
-    file_put_contents($output_basename, $cssunity->parse($type, $separate, "$mhtml_uri$output_basename"));
+    $output_basename = $options->output_name . '.uni.css';
+    $type = $options->type !== 'all' ? $options->type : false;
+    write_file($output_basename, $cssunity, $type, $options->separate, $options->mhtml_uri);
 }
 ?>
