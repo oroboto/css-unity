@@ -167,6 +167,7 @@ class CSSUnity {
         $selector = '';
 
         // loop through lines
+        $mhtml_seed = 0;
         foreach (preg_split("/(\r?\n)/", $text) as $line) {
             if (empty($line)) { continue; }
             $starts_with_at = strpos($line, '@') === 0;
@@ -234,23 +235,34 @@ class CSSUnity {
                         // get base64 encoded resource
                         $base64 = $this->_get_base64_encoded_resource($filepath);
 
+                        // write line as-is if file was not found
+                        if (empty($base64)) {
+                            $parsed_text .= "$line\n";
+                            continue;
+                        }
+
+                        // get data URI
+                        $data_uri = $this->_get_data_uri($filepath, 'image/' . $matches['extension'], $base64);
+
+                        // ignore data URIs larger than 32KB for IE8 compatibility
+                        if (strlen($data_uri) > 32768) {
+                            $parsed_text .= "$line\n";
+                            continue;
+                        }
+
                         // data URI
                         if ($write_data_uri) {
-                            $data_uri = $this->_get_data_uri($filepath, 'image/' . $matches['extension'], $base64);
-
-                            // ignore data URIs larger than 32KB for IE8 compatibility
-                            if (strlen($data_uri) > 32768) {
-                                $parsed_text .= "$line\n";
-                                continue;
-                            }
-
                             $parsed_text .= str_replace($filepath, $data_uri, $line) . "\n";
                         }
 
                         // MHTML
-                        if ($write_mhtml && !empty($base64)) {
-                            $content_location = str_replace('/', '_', $filepath);
-                            $parsed_text .= "*" . str_replace($filepath,
+                        if ($write_mhtml) {
+                            $mhtml_seed++;
+                            $content_location = basename($filepath) . "_$mhtml_seed";
+                            if ($type !== 'mhtml') {
+                                $parsed_text .= '*';
+                            }
+                            $parsed_text .= str_replace($filepath,
                                 $this->_get_mhtml_uri($mhtml_uri, $content_location), $line) . "\n";
                             $mhtml .= "\n--|\n";
                             $mhtml .= "Content-Location:$content_location\n";
