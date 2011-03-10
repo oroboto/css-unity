@@ -62,6 +62,7 @@ class CSSUnityOptionParser {
 
         if ($this->_is_cli()) {
             $this->output_dir = $this->_getopt_or_default($options, array('output', 'o'), getcwd());
+            $this->output_dir = str_replace('//', '/', $this->output_dir . '/');
             $inputs = explode(',', $this->input);
             $inputpath = pathinfo($inputs[0]);
             $this->output_name = $this->_getopt_or_default($options, array('output-name', 'n'), $inputpath['filename']);

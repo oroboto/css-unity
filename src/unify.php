@@ -90,11 +90,11 @@ if ($options->separate) {
 
     // write file for each output type
     foreach ($output_types as $output_type) {
-        $output_basename = $options->output_name . ".$output_type.css";
+        $output_basename = $options->output_dir . $options->output_name . ".$output_type.css";
         write_file($output_basename, $cssunity, $output_type, $options->separate, $options->mhtml_uri);
     }
 } else {
-    $output_basename = $options->output_name . '.uni.css';
+    $output_basename = $options->output_dir . $options->output_name . '.uni.css';
     $type = $options->type !== 'all' ? $options->type : false;
     write_file($output_basename, $cssunity, $type, $options->separate, $options->mhtml_uri);
 }
