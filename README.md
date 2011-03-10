@@ -126,8 +126,10 @@ Further Reading
 * [data:urls – what are they and how to use them / Stoyan's phpied.com](http://www.phpied.com/data-urls-what-are-they-and-how-to-use/)
 
 ### MHTML
+* [RFC 2557 - MIME Encapsulation of Aggregate Documents, such as HTML (MHTML)](http://tools.ietf.org/html/rfc2557)
 * [MHTML - Wikipedia, the free encyclopedia](http://en.wikipedia.org/wiki/MHTML)
 * [MHTML – when you need data: URIs in IE7 and under / Stoyan's phpied.com](http://www.phpied.com/mhtml-when-you-need-data-uris-in-ie7-and-under/)
+* [Data URIs, MHTML and IE7/Win7/Vista blues / Stoyan's phpied.com](http://www.phpied.com/data-uris-mhtml-ie7-win7-vista-blues/)
 * [The proper MHTML syntax / Stoyan's phpied.com](http://www.phpied.com/the-proper-mhtml-syntax/)
 * [Inline MHTML+Data URIs / Stoyan's phpied.com](http://www.phpied.com/inline-mhtml-data-uris/)
 
