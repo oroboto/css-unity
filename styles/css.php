@@ -16,6 +16,7 @@ $options = new CSSUnityOptionParser($_GET);
 // instantiate object with input
 require_once("$CSSUNITY_DIR/CSSUnity.class.php");
 $cssunity = new CSSUnity($options->input);
+$cssunity->substitute = $options->substitute;
 
 // other public functions can be used, for simple combination or normalization
 //echo $cssunity->combine_files();

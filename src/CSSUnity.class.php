@@ -30,8 +30,11 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 class CSSUnity {
-    private $stylesheets;
+    private $stylesheets = array();
     private $text = '';
+
+    public $root = '';
+    public $substitute = '';
 
     // regular expression patterns
     const CSS_URL_PATTERN = '/url\([\'"]?(?P<filepath>(?P<filenoext>.+)?\.(?P<extension>[^\'")?#]+).*?)[\'"]?\)/i';
@@ -220,8 +223,15 @@ class CSSUnity {
                             continue;
                         }
 
-                        // get base64 encoded resource
                         $filepath = $matches['filepath'];
+
+                        // ignore URLs that point off-server
+                        if (strpos($filepath, 'http') === 0) {
+                            $parsed_text .= "$line\n";
+                            continue;
+                        }
+
+                        // get base64 encoded resource
                         $base64 = $this->_get_base64_encoded_resource($filepath);
 
                         // data URI
@@ -312,10 +322,26 @@ class CSSUnity {
     }
 
     private function _get_base64_encoded_resource($filepath) {
-        // TODO: add support for stylesheets from different directories
-        $filepath = $this->_get_dirname($this->stylesheets[0]) . $filepath;
-        if (!file_exists($filepath)) { return; }
-        return base64_encode(file_get_contents($filepath));
+        $is_absolute = strpos($filepath, '/') === 0;
+
+        // substitute text in URL with replacement
+        $substitute = $this->substitute;
+        if (empty($substitute)) {
+            // use empty strings to be split into array
+            $substitute = ',';
+        }
+        $substitute = explode(',', $substitute);
+        $realpath = str_replace($substitute[0], $substitute[1], $filepath);
+
+        if ($is_absolute) {
+            $realpath = $this->_get_root() . $realpath;
+        } else if (empty($this->substitute)) {
+            // TODO: add support for stylesheets from different directories
+            $realpath = $this->_get_dirname($this->stylesheets[0]) . $realpath;
+        }
+        $realpath = realpath($realpath);
+        if (!file_exists($realpath)) { return; }
+        return base64_encode(file_get_contents($realpath));
     }
 
     private function _get_data_uri($input, $type, $base64=false) {
@@ -345,6 +371,18 @@ class CSSUnity {
 
     private function _get_dirname($file) {
         return str_replace('//', '/', dirname($file) . '/');
+    }
+
+    private function _get_root() {
+        if ($this->_is_cli() && !empty($this->root)) {
+            return str_replace('//', '/', realpath($this->root) . '/');
+        }
+
+        // get web root
+        $localpath = dirname($_SERVER["SCRIPT_NAME"]);
+        $absolutepath = realpath('./');
+        $absolutepath = str_replace("\\", "/", $absolutepath); // fix Windows slashes
+        return substr($absolutepath, 0, strpos($absolutepath, $localpath));
     }
 
     private function _str_ends_with($haystack, $needle) {

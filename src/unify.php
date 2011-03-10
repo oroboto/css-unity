@@ -24,6 +24,12 @@ Options
                            Value must include scheme, authority, and path to
                            output directory (e.g. http://domain.com/path/,
                            trailing slash is optional)
+  -r, --root <dir>         root directory, only necessary from command line
+                           when using absolute URLs e.g. /path/to/image.png
+  -S, --substitute <text,replacement>
+                           replaces <text> in URLs with <replacement>, where
+                           <replacement> is relative to your current working
+                           directory; helpful for rewritten URLs
   -r, --recursive          recurses through subdirectories of directories in
                            input (currently disabled)
 ";
@@ -35,7 +41,7 @@ if ($argc < 2) {
 }
 
 // define command line options
-$shortopts  = "i:t:o:n:sm:r";
+$shortopts  = "i:t:o:n:sm:r:S:R";
 $longopts  = array(
     "input:",
     "type:",
@@ -43,6 +49,8 @@ $longopts  = array(
     "output-name:",
     "separate",
     "mhtml-uri:",
+    "root:",
+    "substitute:",
     "recursive"
 );
 $options = getopt($shortopts, $longopts);
@@ -61,6 +69,8 @@ $options = new CSSUnityOptionParser($options);
 // instantiate object with input
 require_once('CSSUnity.class.php');
 $cssunity = new CSSUnity($options->input);
+$cssunity->root = $options->root;
+$cssunity->substitute = $options->substitute;
 
 // other public functions can be used, for simple combination or normalization
 //$output = $cssunity->combine_files();

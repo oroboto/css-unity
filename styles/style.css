@@ -106,8 +106,9 @@ li.edit-find-replace {/* */
     /* */background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-find-replace.png);/* */
     /* */
 }
+/* 18 absolute path */
 li.edit-find {
-    background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-find.png);
+    background-image:url(/labs/css-unity/images/tango-icon-theme-0.8.90/32x32/actions/edit-find.png);
 }
 li.edit-paste {
     background-image:url(../images/tango-icon-theme-0.8.90/32x32/actions/edit-paste.png);

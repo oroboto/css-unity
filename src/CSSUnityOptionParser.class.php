@@ -36,6 +36,8 @@ class CSSUnityOptionParser {
     public $output_name;
     public $separate;
     public $mhtml_uri;
+    public $root;
+    public $substitute;
     public $recursive;
 
     /**
@@ -78,7 +80,9 @@ class CSSUnityOptionParser {
             }
         }
 
-        $this->recursive = isset($options['recursive']) || isset($options['r']);
+        $this->root = $this->_getopt_or_default($options, array('root', 'r'), '');
+        $this->substitute = $this->_getopt_or_default($options, array('substitute', 'S'), '');
+        $this->recursive = isset($options['recursive']) || isset($options['R']);
     }
 
     private function _getopt_or_default($options, $keys, $default) {

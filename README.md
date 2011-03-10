@@ -79,13 +79,20 @@ following:
     -o, --output <dir>       output directory; defaults to current directory
     -n, --output-name <name> name of file(s) to be written
                              defaults to name of first input path specified
-    -s, --separate           split resources into separate file(s)
-    -m, --mhtml-uri <uri>    absolute URI to use for MHTML
-                             Required if type is 'all' or 'mhtml'
+    -s, --separate           split resources into separate file(s) e.g.
+                             name.nores.css, name.datauri.css, name.mhtml.css
+    -m, --mhtml-uri <uri>    absolute URI of directory to use for MHTML,
+                             required if type is 'all' or 'mhtml'
                              Value must include scheme, authority, and path to
-                             output directory (e.g. http://domain.com/path/,
-                             trailing slash is optional)
-    -r, --recursive          recurses through subdirectories of directories in
+                             output directory e.g. http://domain.com/path/
+                             (trailing slash is optional)
+    -r, --root <dir>         root directory, only necessary from command line
+                             when using absolute URLs e.g. /path/to/image.png
+    -S, --substitute <text,replacement>
+                             replaces <text> in URLs with <replacement>, where
+                             <replacement> is relative to your current working
+                             directory; helpful for rewritten URLs
+    -R, --recursive          recurses through subdirectories of directories in
                              input (currently disabled)
 
 License
