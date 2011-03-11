@@ -302,7 +302,9 @@ class CSSUnity {
             $mhtml .= "\n--|--\n*/\n";
 
             // prepend MHTML to beginning
-            $parsed_text = $mhtml . $parsed_text;
+            if (!empty($parsed_text)) {
+                $parsed_text = $mhtml . $parsed_text;
+            }
         }
 
         return trim($parsed_text);
