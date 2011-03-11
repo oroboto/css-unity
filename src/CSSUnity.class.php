@@ -302,7 +302,7 @@ class CSSUnity {
             $mhtml .= "\n--|--\n*/\n";
 
             // prepend MHTML to beginning
-            if (!empty($parsed_text)) {
+            if (stripos($parsed_text, 'content-location') !== false) {
                 $parsed_text = $mhtml . $parsed_text;
             }
         }
