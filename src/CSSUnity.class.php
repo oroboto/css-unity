@@ -37,7 +37,8 @@ class CSSUnity {
     public $substitute = '';
 
     // regular expression patterns
-    const CSS_URL_PATTERN = '/url\([\'"]?(?P<filepath>(?P<filenoext>.+)?\.(?P<extension>[^\'")?#]+).*?)[\'"]?\)/i';
+    const CSS_URL_PATTERN = '/url\([\'"]?(?P<filepath>.*?)[\'"]?\)/i';
+    const CSS_URL_PARTS_PATTERN = '/url\([\'"]?(?P<filepath>(?P<filenoext>.+)?\.(?P<extension>[^\'")?#]+).*?)[\'"]?\)/i';
     const CSS_COMMENT_PATTERN = '/(?P<comment>\/\*(?:\s|.)*?\*\/)/';
     const CSS_MULTIPLE_URL_PATTERN = '/(,)(url)/i';
 
@@ -201,11 +202,17 @@ class CSSUnity {
                     // TODO: convert fonts to data URIs
                 } else {
                     // fill match array
+
+                    // $matches[1] = [filepath]
+                    preg_match(self::CSS_URL_PATTERN, $line, $matches);
+                    $filepath = empty($matches) ? '' : $matches['filepath'];
+                    $is_data_uri = strpos($filepath, 'data:') === 0;
+
                     // $matches[1] = [filepath]
                     // $matches[2] = [filenoext]
                     // $matches[3] = [extension]
-                    preg_match(self::CSS_URL_PATTERN, $line, $matches);
-                    if (!empty($matches)) {
+                    preg_match(self::CSS_URL_PARTS_PATTERN, $line, $matches);
+                    if (isset($matches['extension']) || $is_data_uri) {
                         // go to next line if resources are stripped
                         if ($type === 'nores') { continue; }
 
@@ -224,8 +231,6 @@ class CSSUnity {
                             continue;
                         }
 
-                        $filepath = $matches['filepath'];
-
                         // ignore URLs that point off-server
                         if (strpos($filepath, 'http') === 0) {
                             $parsed_text .= "$line\n";
@@ -242,7 +247,8 @@ class CSSUnity {
                         }
 
                         // get data URI
-                        $data_uri = $this->_get_data_uri($filepath, 'image/' . $matches['extension'], $base64);
+                        $data_uri_type = isset($matches['extension']) ? 'image/' . $matches['extension'] : '';
+                        $data_uri = $this->_get_data_uri($filepath, $data_uri_type, $base64);
 
                         // ignore data URIs larger than 32KB for IE8 compatibility
                         if (strlen($data_uri) > 32768) {
@@ -258,7 +264,8 @@ class CSSUnity {
                         // MHTML
                         if ($write_mhtml) {
                             $mhtml_seed++;
-                            $content_location = basename($filepath) . "_$mhtml_seed";
+                            $content_location = $is_data_uri ? 'datauri' : basename($filepath);
+                            $content_location .= "_$mhtml_seed";
                             if ($type !== 'mhtml') {
                                 $parsed_text .= '*';
                             }
@@ -334,6 +341,10 @@ class CSSUnity {
     }
 
     private function _get_base64_encoded_resource($filepath) {
+        if (strpos($filepath, 'data:') === 0) {
+            return substr($filepath, strpos($filepath, ',') + 1);
+        }
+
         $is_absolute = strpos($filepath, '/') === 0;
 
         // substitute text in URL with replacement
@@ -357,9 +368,14 @@ class CSSUnity {
     }
 
     private function _get_data_uri($input, $type, $base64=false) {
+        if (strpos($input, 'data:') === 0) {
+            return $input;
+        }
+
         if ($base64 === false) {
             $base64 = $this->_get_base64_encoded_resource($input);
         }
+
         if (empty($base64)) { return $input; }
         return "data:$type;base64,$base64";
     }
