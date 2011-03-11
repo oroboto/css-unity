@@ -77,7 +77,9 @@ $cssunity->substitute = $options->substitute;
 //$output = $cssunity->normalize();
 
 function write_file($name, $cssunity, $type, $separate, $mhtml_uri) {
-    file_put_contents($name, $cssunity->parse($type, $separate, $mhtml_uri . basename($name)));
+    $css = $cssunity->parse($type, $separate, $mhtml_uri . basename($name));
+    if (empty($css)) { return; }
+    file_put_contents($name, $css);
 }
 
 // parse stylesheets according to specified options and write to file(s)
