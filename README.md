@@ -26,7 +26,7 @@ Requirements
 ------------
 
 * PHP 5+
-    * Ubuntu requires `php-cli` package for command line functionality.
+    * Ubuntu requires `php5-cli` package for command line functionality.
 
 Usage
 -----
