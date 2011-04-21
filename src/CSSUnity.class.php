@@ -259,6 +259,9 @@ class CSSUnity {
                         // data URI
                         if ($write_data_uri) {
                             $parsed_text .= str_replace($filepath, $data_uri, $line) . "\n";
+                            if ($type === 'datauri' && !$separate) {
+                                $parsed_text .= "*$line\n";
+                            }
                         }
 
                         // MHTML
