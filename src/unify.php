@@ -96,7 +96,7 @@ if ($options->separate) {
         write_file($output_basename, $cssunity, $output_type, $options->separate, $options->mhtml_uri);
     }
 } else {
-    $output_basename = $options->output_dir . $options->output_name . '.uni.css';
+    $output_basename = $options->output_dir . $options->output_name . '.' . $options->type . '.css';
     $type = $options->type !== 'all' ? $options->type : false;
     write_file($output_basename, $cssunity, $type, $options->separate, $options->mhtml_uri);
 }
